@@ -43,7 +43,7 @@ server {
     fastcgi_hide_header X-Powered-By;
 
     # Path to the root of your installation
-    root /usr/local/www/nextcloud/;
+    root /opt/nextcloud/;
 
     # Specify how to handle directories -- specifying `/index.php$request_uri`
     # here as the fallback means that Nginx always exhibits the desired behaviour

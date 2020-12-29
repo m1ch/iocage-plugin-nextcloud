@@ -1,8 +1,13 @@
 #!/bin/sh
 
+cd /opt/nextcloud
+wget https://download.nextcloud.com/server/installer/setup-nextcloud.php
+chown -R www:www /opt/nextcloud
+
 # Enable the service
+sysrc -f /etc/rc.conf redis_enable="YES"
 sysrc -f /etc/rc.conf nginx_enable="YES"
-sysrc -f /etc/rc.conf mysql_enable="YES"
+# sysrc -f /etc/rc.conf mysql_enable="YES"
 sysrc -f /etc/rc.conf php_fpm_enable="YES"
 
 # Install fresh nextcloud.conf if user hasn't upgraded
@@ -40,9 +45,10 @@ sed -i '' 's/.*pm.max_children.*/pm.max_children=10/' /usr/local/etc/php-fpm.d/n
 echo "env[PATH] = $PATH" >> /usr/local/etc/php-fpm.d/nextcloud.conf
 
 # Start the service
+service redis start 2>/dev/null
 service nginx start 2>/dev/null
 service php-fpm start 2>/dev/null
-service mysql-server start 2>/dev/null
+# service mysql-server start 2>/dev/null
 
 #https://docs.nextcloud.com/server/13/admin_manual/installation/installation_wizard.html do not use the same name for user and db
 USER="dbadmin"
@@ -59,40 +65,40 @@ cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1 > /root/ncpasswor
 PASS=`cat /root/dbpassword`
 NCPASS=`cat /root/ncpassword`
 
-if [ -e "/root/.mysql_secret" ] ; then
-   # Mysql > 57 sets a default PW on root
-   TMPPW=$(cat /root/.mysql_secret | grep -v "^#")
-   echo "SQL Temp Password: $TMPPW"
+# if [ -e "/root/.mysql_secret" ] ; then
+#    # Mysql > 57 sets a default PW on root
+#    TMPPW=$(cat /root/.mysql_secret | grep -v "^#")
+#    echo "SQL Temp Password: $TMPPW"
 
 # Configure mysql
-mysql -u root -p"${TMPPW}" --connect-expired-password <<-EOF
-ALTER USER 'root'@'localhost' IDENTIFIED BY '${PASS}';
-CREATE USER '${USER}'@'localhost' IDENTIFIED BY '${PASS}';
-GRANT ALL PRIVILEGES ON *.* TO '${USER}'@'localhost' WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON ${DB}.* TO '${USER}'@'localhost';
-FLUSH PRIVILEGES;
-EOF
+# mysql -u root -p"${TMPPW}" --connect-expired-password <<-EOF
+# ALTER USER 'root'@'localhost' IDENTIFIED BY '${PASS}';
+# CREATE USER '${USER}'@'localhost' IDENTIFIED BY '${PASS}';
+# GRANT ALL PRIVILEGES ON *.* TO '${USER}'@'localhost' WITH GRANT OPTION;
+# GRANT ALL PRIVILEGES ON ${DB}.* TO '${USER}'@'localhost';
+# FLUSH PRIVILEGES;
+# EOF
 
 # Make the default log directory
-mkdir /var/log/zm
-chown www:www /var/log/zm
+# mkdir /var/log/zm
+# chown www:www /var/log/zm
 
-else
-   # Mysql <= 56 does not
+# else
+#    # Mysql <= 56 does not
 
-# Configure mysql
-mysql -u root <<-EOF
-UPDATE mysql.user SET Password=PASSWORD('${PASS}') WHERE User='root';
-DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
-DELETE FROM mysql.user WHERE User='';
-DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';
+# # Configure mysql
+# mysql -u root <<-EOF
+# UPDATE mysql.user SET Password=PASSWORD('${PASS}') WHERE User='root';
+# DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+# DELETE FROM mysql.user WHERE User='';
+# DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';
 
-CREATE USER '${USER}'@'localhost' IDENTIFIED BY '${PASS}';
-GRANT ALL PRIVILEGES ON *.* TO '${USER}'@'localhost' WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON ${DB}.* TO '${USER}'@'localhost';
-FLUSH PRIVILEGES;
-EOF
-fi
+# CREATE USER '${USER}'@'localhost' IDENTIFIED BY '${PASS}';
+# GRANT ALL PRIVILEGES ON *.* TO '${USER}'@'localhost' WITH GRANT OPTION;
+# GRANT ALL PRIVILEGES ON ${DB}.* TO '${USER}'@'localhost';
+# FLUSH PRIVILEGES;
+# EOF
+# fi
 
 # If on NAT, we need to use the HOST address as the IP
 if [ -e "/etc/iocage-env" ] ; then
