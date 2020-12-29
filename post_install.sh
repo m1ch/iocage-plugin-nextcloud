@@ -1,5 +1,6 @@
 #!/bin/sh
 
+mkdir -p /opt/nextcloud
 cd /opt/nextcloud
 wget https://download.nextcloud.com/server/installer/setup-nextcloud.php
 chown -R www:www /opt/nextcloud
