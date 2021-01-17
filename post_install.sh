@@ -1,14 +1,13 @@
-#!/bin/sh
+#!/bin/local/bin/bash
 
 mkdir -p /opt/nextcloud
 cd /opt/nextcloud
-wget https://download.nextcloud.com/server/installer/setup-nextcloud.php
+curl https://download.nextcloud.com/server/installer/setup-nextcloud.php > setup-nextcloud.php
 chown -R www:www /opt/nextcloud
 
 # Enable the service
 sysrc -f /etc/rc.conf redis_enable="YES"
 sysrc -f /etc/rc.conf nginx_enable="YES"
-# sysrc -f /etc/rc.conf mysql_enable="YES"
 sysrc -f /etc/rc.conf php_fpm_enable="YES"
 
 # Install fresh nextcloud.conf if user hasn't upgraded
@@ -49,7 +48,6 @@ echo "env[PATH] = $PATH" >> /usr/local/etc/php-fpm.d/nextcloud.conf
 service redis start 2>/dev/null
 service nginx start 2>/dev/null
 service php-fpm start 2>/dev/null
-# service mysql-server start 2>/dev/null
 
 #https://docs.nextcloud.com/server/13/admin_manual/installation/installation_wizard.html do not use the same name for user and db
 USER="dbadmin"

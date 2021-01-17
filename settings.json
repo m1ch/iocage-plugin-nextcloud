@@ -1,7 +1,7 @@
 {
 	"servicerestart":"service nginx restart",
-	"serviceget": "/usr/local/bin/pluginget",
-	"serviceset": "/usr/local/bin/pluginset",
+	"serviceget": "/usr/local/bin/pluginget.sh",
+	"serviceset": "/usr/local/bin/pluginset.sh",
 	"options": {
 		"dbname": {
 			"type": "string",
@@ -20,18 +20,6 @@
 			"name": "Database Password",
 			"description": "Password to use for NextCloud Database setup",
 			"readonly": true
-		}
-		"ncuser": {
-			"type": "string",
-			"name": "Nextcloud Username",
-			"description": "Username of Nextcloud administrator",
-			"readonly": true
 		},
-		"ncpassword": {
-			"type": "string",
-			"name": "Nextcloud Admin Password",
-			"description": "Default Nextcloud administrator password",
-			"readonly": true
-		}
 	}
 }

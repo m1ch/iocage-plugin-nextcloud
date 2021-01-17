@@ -5,4 +5,5 @@ case $1 in
 	dbname) cat /root/dbname ;;
 	dbuser) cat /root/dbuser ;;
 	dbpassword) cat /root/dbpassword ;;
+	*) echo "Unknown option" ;;
 esac
